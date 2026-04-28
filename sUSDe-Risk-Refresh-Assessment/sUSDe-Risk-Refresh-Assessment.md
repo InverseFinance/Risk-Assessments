@@ -84,8 +84,8 @@ The `BLACKLIST_MANAGER` and `redistributeLockedAmount()`, exercised once on Janu
 
 **RWG Framework Outputs**
 
-- USDe Trustfall — Access Control Report — <https://project-uul6h.vercel.app/reports/Web/USDe.html>
-- sUSDe Trustfall — Access Control Report — <https://project-uul6h.vercel.app/reports/Web/StakedUSDeV2.html>
+- USDe Trustfall — Access Control Report — <https://inverse-public-files-inverse-tools.vercel.app/vercel-report-directory/reports/Web/USDe.html>
+- sUSDe Trustfall — Access Control Report — <https://inverse-public-files-inverse-tools.vercel.app/vercel-report-directory/reports/Web/StakedUSDeV2.html>
 
 **Documentation**
 
