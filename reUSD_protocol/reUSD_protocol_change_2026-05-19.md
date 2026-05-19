@@ -1,4 +1,4 @@
-# reUSD — Material On-Chain Protocol Change Observed (2026-05-13 → 2026-05-16)
+# reUSD — Material On-Chain Protocol Change Observed (2026-05-08 → 2026-05-16)
 
 **Asset:** Re Protocol Deposit Token (reUSD) — `0x5086bf358635B81D8C47C66d1C8b9E567Db70c72`
 **Compiled:** 2026-05-19 by Inverse Finance Risk Working Group (RWG)
