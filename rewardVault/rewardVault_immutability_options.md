@@ -50,6 +50,8 @@ Stake DAO deploys a small contract (~100-200 lines of Solidity) that:
 
 **Cons:** Doesn't remove the attack vector — it gives us a 2-day-windowed veto. If we're offline or compromised during the window, the substitution still lands. Combines best with Option 1 as defense-in-depth.
 
+**Scope wrinkle worth being transparent about.** Because the filter keys on `protocolId == 0xc715e373` (CURVE) and `setStrategy` / `setAllocator` / `setFactory` are not vault-addressable, the practical effect of this veto is "**Inverse can veto custody changes for all of Stake DAO's CURVE-namespace vaults**" — not just ours. There is no on-chain way to narrow further, because the setters don't accept a vault argument. Stake DAO will hear this scope clearly. See the [CANCELLER_ROLE scope](#cancellerrole-scope-clarifying-the-existing-2a2-ask) section below for the two framings (RWG-side vs. Stake-DAO-side) of how to position the ask.
+
 ### 3. Stake DAO adds `freezeProtocol(bytes4)` to ProtocolController and commits to calling it
 
 Stake DAO codes + audits + governance-proposes a new `freezeProtocol(bytes4)` function on ProtocolController. Once called for `0xc715e373`, `setStrategy` / `setAllocator` / `setFactory` for that protocolId become permanently locked.
@@ -87,6 +89,27 @@ Three sub-options for scoping it down:
 | **Filter-canceller wrapper (Option 2 above)** | One small contract, auditable | Cancel power over CURVE custody setters only | **Recommended** — narrow scope, machine-verifiable |
 | **Separate Timelock for FiRM-routed actions** | Deploy second TLC, dual-route their proposals, refactor governance flow | Native CANCELLER on the smaller Timelock only | Significant refactor, probably declined |
 | **Co-signed canceller multi-sig (Inverse + Stake DAO signers)** | None | Coordination ritual, no actual scope reduction | Doesn't achieve the protective intent |
+
+### The filter-canceller scope wrinkle (be honest in the ask)
+
+The narrowest filter we can write keys on `protocolId == 0xc715e373` (CURVE). Because `setStrategy` / `setAllocator` / `setFactory` are written against a `mapping(bytes4 => address)` with no vault argument, **every Curve vault Stake DAO operates reads the same row**. So:
+
+- Our filter cannot discriminate "operations affecting DOLA-sUSDe" from "operations affecting sd-crv-USD / sd-3pool / sd-stETH / etc."
+- The practical effect of granting CANCELLER to our filter-contract is **Inverse can veto custody changes across Stake DAO's entire CURVE-namespace vault stack**, not just ours.
+
+Stake DAO will hear that scope clearly. Two framings to offer when proposing:
+
+**RWG framing (the case for):** The veto is over *shared infrastructure* (the CurveStrategy / OnlyBoostAllocator contract addresses that all Curve vaults depend on), not over Stake DAO's operational freedom. In normal operations, Stake DAO does not need to swap CurveStrategy — the historical cadence shows `setStrategy` is exercised every ~7 weeks, last touched 2026-01-14, and almost always co-scheduled with announced upgrades. A cancel veto on this shared infrastructure costs Stake DAO nothing in the steady state and costs them a coordination round-trip during legitimate upgrades. In exchange, every Curve vault gets a partner-monitored governance buffer — a feature Stake DAO could even market.
+
+**Stake DAO framing (the case for caution):** Giving Inverse veto power over their other Curve customers' vaults is a non-trivial trust ask made on behalf of third parties who didn't agree to it. If Stake DAO ships a legitimate upgrade and Inverse holds it up (deliberately or by being offline / unresponsive within the 2-day window), every Curve-vault customer takes the operational hit, not just Inverse. The CANCELLER role is non-fund-moving so the failure mode is bounded — but the optics still matter.
+
+How we'd suggest mitigating in the ask itself:
+
+1. **Bounded cancel window** — the filter contract could refuse to cancel within (e.g.) the final 4 hours of the 2-day window, so Stake DAO has time to re-propose / re-execute if Inverse fails to respond.
+2. **Public veto reason** — require the filter to emit a `VetoIssued(id, reason)` event with on-chain commentary, making vetoes auditable and creating reputational accountability.
+3. **Time-boxed grant** — `CANCELLER_ROLE` on the filter-contract is granted for a fixed period (e.g. 12 months) and renews via a Stake DAO governance proposal. Forces a recurring reaffirmation.
+
+None of the three are technically required for the filter to work — they're trust-signaling that lowers the cost to Stake DAO of agreeing.
 
 ## Recommendation
 
