@@ -2,6 +2,7 @@
 
 **Asset:** Stake DAO OnlyBoost v2 RewardVault clone (`0x0c36ad1a68cdbBBFafaD7d03bb97cbaB24174e55`)
 **Compiled:** 2026-05-15 by Inverse Finance Risk Working Group
+**Re-verified on-chain:** 2026-06-12 (block 25302753) — the Timelock role-topology asks (§2a.2–3) carry fresh confirmation.
 **Lens:** FiRM-collateral review — can the asset's access-control surface create friction between intended liquidation value and what a liquidator actually receives?
 
 > **TL;DR:** The asset is structurally sound for FiRM-escrow use within the 2-day Timelock window. We have **5 collaborative asks** below — primarily about Timelock observability, an audit-history disclosure, and one operational question about emergency-mode reward recovery. **None of these are blockers**, and we expect the conversation to refine FiRM's sizing and runbooks rather than change the structural picture.
@@ -23,7 +24,7 @@ We've completed 3 cycles of on-chain + source-level verification against this va
 
 ## 1. Residual attack-vector class — worst-case governance scenarios
 
-The two liquidation-critical on-chain levers that remain are both gated by `ProtocolController.owner()` (= `TimelockController` 2d with Gnosis Safe 3/5 `0xB0552b6860CE5C0202976Db056b5e3Cc4f9CC765` as proposer / executor):
+The two liquidation-critical on-chain levers that remain are both gated by `ProtocolController.owner()` (= `TimelockController` 2d with Gnosis Safe 3/5 `0xB0552b6860CE5C0202976Db056b5e3Cc4f9CC765` as **sole proposer, executor, *and* canceller** — the executor set is closed, not open to `address(0)`; re-verified on-chain 2026-06-12, see §2a.2):
 
 1. **`setStrategy(bytes4 protocolId, address strategy)`** — substitutes the custodian of every gauge position under that protocol ID
 2. **`setAllocator(bytes4 protocolId, address allocator)`** — substitutes the routing-decision contract (and via its immutable `SIDECAR_FACTORY` reference, the sidecar resolution path)
@@ -126,9 +127,14 @@ Five concrete asks, ordered by FiRM-side priority. The first three are about har
 
 1. **Public `CallScheduled` / `CallExecuted` feeds.** Do you publish or commit to publishing every Timelock proposal to a governance forum / Discord / status page at the moment of scheduling? Is there a public RSS / webhook / Snapshot mirror partners can subscribe to? The 2-day window only protects risk partners who actually see scheduled proposals — observability is the foundation.
 
-2. **`CANCELLER_ROLE` co-share.** Would Stake DAO consider granting `CANCELLER_ROLE` on `ProtocolTimelock` (`0xb27afc7844988948FBd6210AeF4E1362bC2d8E6a`) to a multi-sig that includes risk partners (Inverse RWG, etc.)? Cancel is one-way and non-fund-moving — it can only block a proposal, never execute one — so the trust requirement is meaningfully lower than for proposers. The role currently sits with the same Safe 3/5 that also holds `PROPOSER_ROLE`, which means a malicious proposer set cannot self-cancel its own malicious proposal. A partner co-share would harden the window.
+2. **Independent `CANCELLER_ROLE` (the single highest-value hardening).** *Re-verified on-chain 2026-06-12 (block 25302753): the Safe 3/5 `0xB0552b6860CE5C0202976Db056b5e3Cc4f9CC765` is the **sole** holder of `PROPOSER_ROLE`, `EXECUTOR_ROLE`, **and** `CANCELLER_ROLE` on `ProtocolTimelock` (`0xb27afc7844988948FBd6210AeF4E1362bC2d8E6a`), and also holds `DEFAULT_ADMIN_ROLE`; `EXECUTOR_ROLE` is closed (not open to `address(0)`), and there have been zero role revokes since deploy.* This means a compromise of the proposer Safe is simultaneously a compromise of the only party that could cancel the malicious proposal — so the 2-day delay degrades from a **veto** window to a mere **observation** window (everyone can watch the attack land; no one can stop it). Because cancel is a *negative* power — it can only block, never execute or move funds — the trust bar for sharing it is far lower than for proposing. The safest decentralization, in descending impact:
+   - **(a)** Make `ProtocolTimelock` the sole admin of itself (revoke the Safe's direct `DEFAULT_ADMIN_ROLE`), so every role grant **and** `updateDelay` must itself pass the 2-day window — where it can be vetoed.
+   - **(b)** Grant `CANCELLER_ROLE` to an **independent** security council — different signers / key custody, ideally cross-org (e.g. a small multi-sig including the Inverse RWG and other partners). Cancel-only. This is what converts the delay into a genuine veto window.
+   - **(c)** Optionally open the executor (`address(0)`) so execution timing isn't a Safe-controlled choke point.
 
-3. **Delay-floor commitment.** Is there a written / on-chain commitment that the 2-day `getMinDelay()` will not be reduced? The setter is `updateDelay(uint256)` gated by the Timelock's `DEFAULT_ADMIN_ROLE` (currently the same Safe 3/5), so a malicious governance could schedule a delay reduction first and then execute attacks faster. A signed commitment + observability on `updateDelay` proposals would address this.
+   Even step (b) alone — one independent canceller — materially hardens the window for every partner, at minimal added attack surface (a malicious cancel is a recoverable governance nuisance; a malicious execute is unrecoverable fund loss — the asymmetry is why cancel can be decentralized cheaply).
+
+3. **Delay-floor commitment.** Is there a written / on-chain commitment that the 2-day `getMinDelay()` will not be reduced? *(Re-verified 2026-06-12: `getMinDelay()` = 172,800s, and `updateDelay(uint256)` is gated by the Timelock's `DEFAULT_ADMIN_ROLE` — held by the same Safe 3/5.)* So a malicious governance could schedule a delay reduction first and then execute attacks faster. A signed commitment + observability on `updateDelay` proposals would address this — and note that hardening (a) above (timelock self-admin) closes this path structurally, since the delay reduction would then itself have to survive the 2-day window.
 
 ### 2b. Documentation / audit
 
