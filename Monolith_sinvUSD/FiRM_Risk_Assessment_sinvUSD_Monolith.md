@@ -317,3 +317,6 @@ The operator-side findings in this document are recorded primarily as review ite
 ### Parameter Recommendations
 
 *Held pending the outcome above.*
+
+> [!NOTE]
+> **Update, September 2026.** The reassessment this section anticipated has been completed, with an opening parameter set for an experimental market under a guarded deployment ceiling. See the [sinvUSD Reassessment: Mitigation Log and Conclusion](sinvUSD_Reassessment_Mitigation_Log_and_Conclusion.md).
