@@ -32,13 +32,13 @@ Has anything the June assessment relied on failed since? Each row names one depe
 | The market | no failure | live 116 days; one liquidation (17 July, a 3,005 DOLA position repaid in full); no bad debt; no liquidation in the 29 October crvUSD dip |
 | crvUSD peg | held, one brief dip | Curve's aggregate price: lowest hour 0.9926 (29 October), below 0.995 for about 30 minutes that evening and never below 0.99; no other hour below 0.995 |
 | crvUSD price feed | updated throughout | Chainlink crvUSD/USD updated about daily; on 29 October it followed a brief crvUSD dip to 0.9859, held for about 6 minutes, and this market's collateral price fell 1.4% with it, recovering within minutes |
-| PegKeepers | used, twice to zero | Late June BTC fall: drawn to zero, rebuilt to 33.75M by 10 July<br>From 23 October: drawn down, reaching zero on 30 October; not rebuilt by 4 November |
-| Borrow backstop | grew | 30 day average: 47.7M in June, 67.8M on 4 November<br>Spot on 4 November: 57.4M, after falling in the late October dip |
+| PegKeepers | used, twice to zero | - Late June BTC fall: drawn to zero, rebuilt to 33.75M by 10 July<br>- From 23 October: drawn down, reaching zero on 30 October; not rebuilt by 4 November |
+| Borrow backstop | grew | - 30 day average: 47.7M in June, 67.8M on 4 November<br>- Spot on 4 November: 57.4M, after falling in the late October dip |
 | crvUSD and scrvUSD contracts | no failure | RWG weekly checkups (Trustfall scans) to 3 November; changes only by Curve votes ([section 7](#7-loss-buffer-adjacent-markets-and-governance)) |
 | Yield Basis v3 | no incident | no market added or removed; its WETH pool's new fee and price policy, run on Pyth price reports, live since 29 October, its emergency stop never used; a deposit route that leaked value from the pools is being closed ([section 5](#5-yield-basis-exposure)) |
 | A BTC fall deeper than June's 23% | not seen | the largest, about 11% below its 30 day high, reached its low on 3 November |
 | Stake DAO escrow | exit works | FiRM's guardian withdrawal passed a fork test on 21 October; two custody alerts (September and October), both benign; none since |
-| crvUSD exit liquidity | fell late in the window | 30 day average: 32.7M in June, 31.6M on 4 November<br>Last week of October: the ten pools' pairing side fell from about 32M to about 14M |
+| crvUSD exit liquidity | fell late in the window | - 30 day average: 32.7M in June, 31.6M on 4 November<br>- Last week of October: the ten pools' pairing side fell from about 32M to about 14M |
 
 ## 2. Market Performance Since Launch
 
@@ -90,7 +90,7 @@ Each Yield Basis market holds its pool's LP (crvUSD paired with ETH or BTC) agai
 | crvUSD allocated to the v3 markets | 176.1M | 296.1M (vote 59 set 297.9M on 23 October; the WETH market's allocation has since moved with its own activity) |
 | Incidents | corrective votes on 3 and 4 June (withdrawals unblocked, migrator redeployed) | none on chain: no market added or removed, no use of a policy's emergency stop. On 21 October the team disclosed a deposit route that let value leave the pools without proper fees; the new policy closes it pool by pool |
 | Largest BTC fall | 23% (the June crash) | about 11% below its 30 day high (low on 3 November) |
-| Redemption discount, v3 BTC vaults | three vault average peaked at 4.8%, under 2% within about 3 days | Late June: the three vault average peaked at 3.3% and stayed above 2% for about 7.5 days<br>After the August BTC rally: WBTC and tBTC mostly 3% to 6%; cbBTC under 2%<br>Since 29 October: all three under 2% as the gap to `price_scale` narrowed (WBTC 1.5%, tBTC 1.6% on 4 November) |
+| Redemption discount, v3 BTC vaults | three vault average peaked at 4.8%, under 2% within about 3 days | - Late June: the three vault average peaked at 3.3% and stayed above 2% for about 7.5 days<br>- After the August BTC rally: WBTC and tBTC mostly 3% to 6%; cbBTC under 2%<br>- Since 29 October: all three under 2% as the gap to `price_scale` narrowed (WBTC 1.5%, tBTC 1.6% on 4 November) |
 | crvUSD above an even balance in the v3 pools, released if BTC falls back to the pools' price | none | 13.0M |
 | Fee and price policy | none | BTC pools: `price_scale` steered by their own prices (since August); WETH: swap fees and `price_scale` set from Pyth reports (since 29 October) |
 
@@ -118,7 +118,7 @@ If Pyth stops reporting, the policy keeps its last price for up to 90 minutes, t
 | Timelock delay on vault changes | 2 days | 5 days (since 1 July) |
 | Timelock admin | the 3/5 Safe directly | the Timelock itself (since 25 June) |
 | Canceller | an independent council asked for by FiRM | a 2/5 Safe with the same five owners as the 3/5 Safe |
-| Permission changes without delay | n/a | Since the 16 September upgrade, the 3/5 Safe can set vault permissions at once, with no timelock delay<br>Used once, on 18 September, to restrict the SaveDola gauge to the locker; a protective change<br>The same power could freeze or strand positions, but cannot move them out |
+| Permission changes without delay | n/a | - Since the 16 September upgrade, the 3/5 Safe can set vault permissions at once, with no timelock delay<br>- Used once, on 18 September, to restrict the SaveDola gauge to the locker; a protective change<br>- The same power could freeze or strand positions, but cannot move them out |
 | Emergency key | n/a | one guardian key can pause deposits and shut down gauges at once, with withdrawals left open; never used |
 | Custody alerts | monitoring live from 23 June | two (11 September, 2 October), both diagnosed benign and confirmed with Stake DAO; none since |
 | Guardian withdrawal, FiRM's exit from the vault | designed | fork test passed on 21 October: every funded escrow back to plain LP, borrowing paused |
@@ -130,8 +130,8 @@ If Pyth stops reporting, the policy keeps its last price for up to 90 minutes, t
 | :---- | :---- | :---- |
 | jrDOLA, Inverse's junior tranche | not deployed | 233.6k DOLA, about 5% of this market's debt |
 | LlamaLend V2 sDOLA market, priced off the same pool | not live | 10.9M crvUSD debt, 83% utilized; borrow cap 25M (12.4M before Curve vote 1505, 21 October) |
-| Curve governance touching crvUSD | n/a | Routine gauge and market votes through the window, including one new LlamaLend market at a 3M cap<br>Week of 17 August: crvUSD ceiling raise, 15M to 30M, into a Curve lending vault<br>1505 (21 October): LlamaLend V2 sDOLA borrow cap, 12.4M to 25M<br>1508 (29 October): the Yield Basis WETH fee and price policy ([section 5](#5-yield-basis-exposure))<br>1509 (29 October): a Curve lending minter's ceiling, 30M to 60M, minting 30M crvUSD<br>1510 (29 October): crvUSD's minter and lending admin moved to new owner contracts. This gives Curve's 5 of 9 emergency multisig powers it can use without a vote, such as cutting LlamaLend V2 borrow caps or stopping a gauge's CRV rewards<br>1510, same vote: in a bulk update of 934 gauges, the SaveDola pool gauge's manager moved from a single wallet to the Curve DAO. Rewards only; no effect on prices or withdrawals |
-| Yield Basis governance | n/a | Votes 50 to 58: executed, all routine (v3 market caps, rates and fees set alongside Curve votes on the same pools, crvUSD incentives, a rebuilt migrator)<br>Vote 59: executed 23 October; new migrator, allocations reset<br>Vote 60: executed 29 October with Curve vote 1508; the WETH fee and price policy<br>No later vote changed the v3 markets' policies, A parameters or allocations by 4 November (read on chain) |
+| Curve governance touching crvUSD | n/a | - Routine gauge and market votes through the window, including one new LlamaLend market at a 3M cap<br>- Week of 17 August: crvUSD ceiling raise, 15M to 30M, into a Curve lending vault<br>- 1505 (21 October): LlamaLend V2 sDOLA borrow cap, 12.4M to 25M<br>- 1508 (29 October): the Yield Basis WETH fee and price policy ([section 5](#5-yield-basis-exposure))<br>- 1509 (29 October): a Curve lending minter's ceiling, 30M to 60M, minting 30M crvUSD<br>- 1510 (29 October): crvUSD's minter and lending admin moved to new owner contracts. This gives Curve's 5 of 9 emergency multisig powers it can use without a vote, such as cutting LlamaLend V2 borrow caps or stopping a gauge's CRV rewards<br>- 1510, same vote: in a bulk update of 934 gauges, the SaveDola pool gauge's manager moved from a single wallet to the Curve DAO. Rewards only; no effect on prices or withdrawals |
+| Yield Basis governance | n/a | - Votes 50 to 58: executed, all routine (v3 market caps, rates and fees set alongside Curve votes on the same pools, crvUSD incentives, a rebuilt migrator)<br>- Vote 59: executed 23 October; new migrator, allocations reset<br>- Vote 60: executed 29 October with Curve vote 1508; the WETH fee and price policy<br>- No later vote changed the v3 markets' policies, A parameters or allocations by 4 November (read on chain) |
 
 ## 8. Conclusion
 
